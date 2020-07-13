@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+    app:
+        image: "node:10-alpine"
+        command: sh -c "yarn install && yarn run dev"
+        networks: 
+            appntw:
+        ports:
+            - 2000:3000
+            - 2001:3000
+        working_dir: /app
+        volumes:
+            - ./:/app
+        environment:
+            MYSQL_HOST: appmysql
+            MYSQL_USER: root
+            MYSQL_PASSWORD: secret
+            MYSQL_DB: todos
+    mysql:
+        image: mysql:5.7
+        networks: 
+            appntw:
+                aliases: 
+                    - appmysql
+        volumes:
+            - tmd:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: todos
+            
+    phpmyadmin:
+        image: bitnami/phpmyadmin:latest
+        ports:
+            - 83:8080 
+            - 444:8443
+        networks:
+            - appntw
+        environment:
+            DATABASE_HOST: appmysql
+
+volumes:
+    tmd:
+    
+networks:
+    appntw:
